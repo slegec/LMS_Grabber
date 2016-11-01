@@ -6,6 +6,9 @@ import os, sys
 
 import signal
 
+import downloadFiles
+
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
@@ -74,7 +77,6 @@ def getCourseInfo(src):
     listOfCourses.append(courseDict)
     courseDict = {}
 
-  print listOfCourses
 
   return listOfCourses
 
@@ -138,7 +140,7 @@ def findFilesAndDirs(src):
         #Check if this is a file
         if "/xid" in tmpStr:
           isFile = True
-          print tmpStr
+          #print tmpStr
 
           #Create a new entry for a file - add the URL
           dict_File["URL"] = tmpStr
@@ -147,12 +149,12 @@ def findFilesAndDirs(src):
         #Check if this is a dir
         elif "content_id=" in tmpStr:
           isDir = True
+          print tmpStr
 
           #Call this function to fix any problems that may appear when the source code is
           #  pulled form the website
           tmpStr = htmlRepair(tmpStr)
-
-          print tmpStr
+          #print tmpStr
 
 
           #Create a new entry for a dir - add the URL
@@ -186,14 +188,14 @@ def findFilesAndDirs(src):
 
         #Check if it is a file
         if isFile == True:
-          print tmpStr
+          #print tmpStr
 
           #Add to the file entry - Filename
           dict_File["Name"] = tmpStr
 
         #Check if it is a file
         elif isDir == True:
-          print tmpStr
+          #print tmpStr
 
           #Add to the file entry - Filename
           dict_Dir["Name"] = tmpStr
@@ -218,7 +220,6 @@ def findFilesAndDirs(src):
     isDir = False
     isFile = False
 
-  print listOfFilesAndDirs
 
   return listOfFilesAndDirs
 
@@ -236,8 +237,17 @@ def main():
   username = browser.find_element_by_id("user_id")
   password = browser.find_element_by_id("password")
 
-  inputUsername = raw_input("Username: ")
-  inputPassword = getpass.getpass("Password: ")
+  #Load a PW file if present
+  try:
+    authData = []
+    with open('../../PW.txt') as f:
+      authData = f.read().splitlines()
+    inputUsername = authData[0]
+    inputPassword = authData[1]
+
+  except:
+    inputUsername = raw_input("Username: ")
+    inputPassword = getpass.getpass("Password: ")
 
   username.send_keys(inputUsername)
   password.send_keys(inputPassword)
@@ -253,7 +263,7 @@ def main():
   courseInfo_src = browser.page_source.encode('ascii', 'ignore')
   #soup = BeautifulSoup(source, "html.parser")
   #print soup
-  print courseInfo_src
+  #print courseInfo_src
 
   courseInfoList = getCourseInfo(courseInfo_src)
 
@@ -269,6 +279,7 @@ def main():
 
 
   listOfFilesAndDirs = findFilesAndDirs(coursePage)
+  print listOfFilesAndDirs
 
 
   for entry in listOfFilesAndDirs:
@@ -280,10 +291,9 @@ def main():
       coursePage = browser.page_source.encode('ascii', 'ignore')
       coursePage = coursePage.splitlines()
 
-      temp = findFilesAndDirs(coursePage)
+      filesToDownload = findFilesAndDirs(coursePage)
 
-
-
+      downloadFiles.download(filesToDownload, authData)
 
   #browser.service.process.send_signal(signal.SIGTERM) # kill the specific phantomjs child proc
   browser.quit()                                      # quit the node proc
