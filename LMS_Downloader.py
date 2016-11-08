@@ -3,14 +3,23 @@ import time
 import getpass
 #from bs4 import BeautifulSoup
 import os, sys
-
 import signal
-
 import downloadFiles
 
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+
+###########################
+#
+# Known Issues!!!
+#
+# -Fix xyz.docx@target=blank <- Should end in the file extension
+# -Not grabbing embeded mp4 videos
+# -Need to download inner folders (Recursion)
+# -Embeded HTML file (Circuits example)
+#
+
 
 
 #Repairs some problems in how the source code is pulled from the webpage
@@ -19,6 +28,7 @@ from selenium.webdriver.common.keys import Keys
 def htmlRepair(myStr):
   #Fixes '&'
   myStr = myStr.replace("&amp;", "&")
+  myStr = myStr.replace("@target=blank;", "")
   return myStr
 
 
@@ -142,6 +152,8 @@ def findFilesAndDirs(src):
           isFile = True
           #print tmpStr
 
+          tmpStr = htmlRepair(tmpStr)
+
           #Create a new entry for a file - add the URL
           dict_File["URL"] = tmpStr
           break
@@ -152,7 +164,7 @@ def findFilesAndDirs(src):
           print tmpStr
 
           #Call this function to fix any problems that may appear when the source code is
-          #  pulled form the website
+          #  pulled from the website
           tmpStr = htmlRepair(tmpStr)
           #print tmpStr
 
@@ -190,12 +202,18 @@ def findFilesAndDirs(src):
         if isFile == True:
           #print tmpStr
 
+          #Repair if necessary
+          tmpStr = htmlRepair(tmpStr)
+
           #Add to the file entry - Filename
           dict_File["Name"] = tmpStr
 
         #Check if it is a file
         elif isDir == True:
           #print tmpStr
+
+          #Repair if necessary
+          tmpStr = htmlRepair(tmpStr)
 
           #Add to the file entry - Filename
           dict_Dir["Name"] = tmpStr
@@ -280,23 +298,31 @@ def main():
 
   listOfFilesAndDirs = findFilesAndDirs(coursePage)
   print listOfFilesAndDirs
+  print "---------Done Parsing Main Page -> On to links---------------"
 
 
   for entry in listOfFilesAndDirs:
 
     if 'Dir' in entry:
-      URLpath = (entry.get('Dir')).get('URL')
+      URLpath = (entry['Dir']['URL'])
       print URLpath
+      currentDir = entry['Dir']['Name']
       browser.get(preURL + URLpath)
       coursePage = browser.page_source.encode('ascii', 'ignore')
       coursePage = coursePage.splitlines()
 
       filesToDownload = findFilesAndDirs(coursePage)
 
-      downloadFiles.download(filesToDownload, authData)
+      downloadFiles.download(filesToDownload, authData, currentDir)
+
+    if 'File' in entry:
+      os.system("wget.exe --content-disposition --user " + authData[0] + " --password " + authData[1] + " https://lms9.rpi.edu:8443" +
+        entry['File']['URL'] + " -P " + "\"" + "Files" + "\"")
+
 
   #browser.service.process.send_signal(signal.SIGTERM) # kill the specific phantomjs child proc
   browser.quit()                                      # quit the node proc
+
 
 
 

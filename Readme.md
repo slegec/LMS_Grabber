@@ -1,7 +1,7 @@
-##LMS Grabber
+#LMS Grabber
 
 
-#Goal
+##Goal
 
 To be able to download files from a users LMS to their local computers.
 
@@ -11,7 +11,7 @@ in order to parse through the LMS webpages.
 
 
 
-#Usage
+##Usage
 
 Run the program in a CMD window.  Files should be created in the same directory as the .py
 file is located
