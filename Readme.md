@@ -3,7 +3,7 @@
 
 ##Goal
 
-To be able to download files from a users LMS to their local computers.
+To be able to download files from a users LMS account to their local computers.
 
 
 This application is written in Python 2.x.  It uses the Selenieum webbrowser module

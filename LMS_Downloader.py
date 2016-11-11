@@ -28,7 +28,7 @@ from selenium.webdriver.common.keys import Keys
 def htmlRepair(myStr):
   #Fixes '&'
   myStr = myStr.replace("&amp;", "&")
-  myStr = myStr.replace("@target=blank;", "")
+  #myStr = myStr.replace("@target=blank;", "")
   return myStr
 
 
@@ -247,9 +247,15 @@ def main():
 
   preURL = "https://lms9.rpi.edu:8443"
 
-  browser = webdriver.Firefox()
-  #browser = webdriver.PhantomJS()
-  browser.get('https://lms9.rpi.edu:8443/')
+  #Hide the webbrowser if possible
+  try:
+    browser = webdriver.PhantomJS()
+    ascasd
+  except:
+    browser = webdriver.Firefox()
+
+
+  browser.get(preURL)
 
 
   username = browser.find_element_by_id("user_id")
@@ -267,9 +273,12 @@ def main():
     inputUsername = raw_input("Username: ")
     inputPassword = getpass.getpass("Password: ")
 
+  #Send the username and passwords as keypresses
+  #Simulate typing
   username.send_keys(inputUsername)
   password.send_keys(inputPassword)
 
+  #Submit username and password
   browser.find_element_by_id("entry-login").click()
 
 
@@ -277,7 +286,7 @@ def main():
 
   time.sleep(2)
 
-  browser.get("https://lms9.rpi.edu:8443/webapps/Bb-mobile-BBLEARN/enrollments?course_type=COURSE")
+  browser.get(preURL + "/webapps/Bb-mobile-BBLEARN/enrollments?course_type=COURSE")
   courseInfo_src = browser.page_source.encode('ascii', 'ignore')
   #soup = BeautifulSoup(source, "html.parser")
   #print soup
@@ -285,39 +294,99 @@ def main():
 
   courseInfoList = getCourseInfo(courseInfo_src)
 
-  #IED
-  testCourse = courseInfoList[2]['bbid']
+  DEBUG_FLAG = False
+
+  #For easy debug
+  if (DEBUG_FLAG == True):
+
+    #IED
+    testCourse = courseInfoList[2]['bbid']
 
 
-  browser.get("https://lms9.rpi.edu:8443/webapps/blackboard/content/listContent.jsp?course_id=" + testCourse)
+    browser.get(preURL + "/webapps/blackboard/content/listContent.jsp?course_id=" + testCourse)
 
-  coursePage = browser.page_source.encode('ascii', 'ignore')
-  coursePage = coursePage.splitlines()
-  #print coursePage
-
-
-  listOfFilesAndDirs = findFilesAndDirs(coursePage)
-  print listOfFilesAndDirs
-  print "---------Done Parsing Main Page -> On to links---------------"
+    coursePage = browser.page_source.encode('ascii', 'ignore')
+    coursePage = coursePage.splitlines()
+    #print coursePage
 
 
-  for entry in listOfFilesAndDirs:
+    listOfFilesAndDirs = findFilesAndDirs(coursePage)
+    print listOfFilesAndDirs
+    print "---------Done Parsing Main Page -> On to links---------------"
 
-    if 'Dir' in entry:
-      URLpath = (entry['Dir']['URL'])
-      print URLpath
-      currentDir = entry['Dir']['Name']
-      browser.get(preURL + URLpath)
+
+    for entry in listOfFilesAndDirs:
+
+      if 'Dir' in entry:
+        URLpath = (entry['Dir']['URL'])
+        print URLpath
+        currentDir = entry['Dir']['Name']
+        browser.get(preURL + URLpath)
+        coursePage = browser.page_source.encode('ascii', 'ignore')
+        coursePage = coursePage.splitlines()
+
+        filesToDownload = findFilesAndDirs(coursePage)
+
+        downloadFiles.download(filesToDownload, authData, currentDir)
+
+      if 'File' in entry:
+        #wget Commands Used
+        #  --content-disposition => names the file with the name specified in the response header without any redirecting required
+        #  -nc => skip downloads that would download to existing files.
+        #  --user => Username
+        #  --password => Password
+        os.system("wget.exe --content-disposition -nc --user " + authData[0] + " --password " + authData[1] + " https://lms9.rpi.edu:8443" +
+          entry['File']['URL'] + " -P " + "\"" + "Files" + "\"")
+
+
+  #This will be produciton code
+  #VVVVVVVVVVVVVVVVV
+  else:
+
+    #Go through all courses
+    for entry in courseInfoList:
+
+
+      course_ID = entry['bbid']
+      course_Name = entry['name']
+
+      print "--------------" + course_Name + "-----------------------"
+
+
+      browser.get(preURL + "/webapps/blackboard/content/listContent.jsp?course_id=" + course_ID)
+
       coursePage = browser.page_source.encode('ascii', 'ignore')
       coursePage = coursePage.splitlines()
+      #print coursePage
 
-      filesToDownload = findFilesAndDirs(coursePage)
 
-      downloadFiles.download(filesToDownload, authData, currentDir)
+      listOfFilesAndDirs = findFilesAndDirs(coursePage)
+      print listOfFilesAndDirs
+      print "---------Done Parsing Main Page -> On to links---------------"
 
-    if 'File' in entry:
-      os.system("wget.exe --content-disposition --user " + authData[0] + " --password " + authData[1] + " https://lms9.rpi.edu:8443" +
-        entry['File']['URL'] + " -P " + "\"" + "Files" + "\"")
+
+      for entry in listOfFilesAndDirs:
+
+        if 'Dir' in entry:
+          URLpath = (entry['Dir']['URL'])
+          print URLpath
+          currentDir = entry['Dir']['Name']
+          browser.get(preURL + URLpath)
+          coursePage = browser.page_source.encode('ascii', 'ignore')
+          coursePage = coursePage.splitlines()
+
+          filesToDownload = findFilesAndDirs(coursePage)
+
+          downloadFiles.download(filesToDownload, authData, currentDir, course_Name)
+
+        if 'File' in entry:
+          #wget Commands Used
+          #  --content-disposition => names the file with the name specified in the response header without any redirecting required
+          #  -nc => skip downloads that would download to existing files.
+          #  --user => Username
+          #  --password => Password
+          os.system("wget.exe --content-disposition -nc --user " + authData[0] + " --password " + authData[1] + " https://lms9.rpi.edu:8443" +
+            entry['File']['URL'] + " -P " + "\"" + "Files\\" + course_Name + "\"")
 
 
   #browser.service.process.send_signal(signal.SIGTERM) # kill the specific phantomjs child proc
