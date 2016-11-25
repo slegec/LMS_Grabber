@@ -250,7 +250,7 @@ def main():
   #Hide the webbrowser if possible
   try:
     browser = webdriver.PhantomJS()
-    ascasd
+    ascasd   #Throws Exception
   except:
     browser = webdriver.Firefox()
 
@@ -335,6 +335,7 @@ def main():
         #  -nc => skip downloads that would download to existing files.
         #  --user => Username
         #  --password => Password
+
         os.system("wget.exe --content-disposition -nc --user " + authData[0] + " --password " + authData[1] + " https://lms9.rpi.edu:8443" +
           entry['File']['URL'] + " -P " + "\"" + "Files" + "\"")
 
