@@ -4,6 +4,37 @@ import time
 import subprocess
 from subprocess import Popen,PIPE,STDOUT,call
 
+
+#Method to check out the file size
+def checkFileSize(username, password, entry, currentDirName, course_Name, maxFileSize):
+
+  #Check the filesize to ensure we don't download huge files
+  cmd = ("wget.exe --spider --user " + username + " --password " + password + " https://lms9.rpi.edu:8443" +
+    entry["File"]["URL"] + " -P " + "\"" + "Files" + "\\" + course_Name + "\\" + currentDirName)
+
+  #Get the filesize data from stderr
+  command = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+  out, err = command.communicate()
+  print err
+  startLengthIndex = err.find("Length:")
+  endLengthIndex = err.find(" ", startLengthIndex + 8)
+  fileSize = err[startLengthIndex+8:endLengthIndex]
+  print fileSize
+  fileSize = int(fileSize)
+
+  print "File Size: " + str(fileSize)
+
+  #Skip file if greater than 5MB
+  #JUST FOR DEBUG
+  if fileSize > maxFileSize:
+    print "---------------------------SKIPPING FILE: GREATER THAN  5MB--------------------------"
+    time.sleep(5)
+    return False
+    #continue
+
+  return True
+
+
 def download(files, authData, currentDirName, course_Name):
   print files
 
@@ -30,28 +61,15 @@ def download(files, authData, currentDirName, course_Name):
       #  json.dump(data, outfile)
 
 
-      #Check the filesize to ensure we don't download huge files
-      cmd = ("wget.exe --spider --user " + username + " --password " + password + " https://lms9.rpi.edu:8443" +
-        entry["File"]["URL"] + " -P " + "\"" + "Files" + "\\" + course_Name + "\\" + currentDirName)
+      #Check the size of the file that we are downloading
+      # Depending on the max size allowed, if any, this will determine if we
+      # need to download it or not.
+      maxFileSize = 500000
 
-      #Get the filesize data from stderr
-      command = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
-      out, err = command.communicate()
-      print err
-      startLengthIndex = err.find("Length:")
-      endLengthIndex = err.find(" ", startLengthIndex + 8)
-      fileSize = err[startLengthIndex+8:endLengthIndex]
-      print fileSize
-      fileSize = int(fileSize)
-
-      print "File Size: " + str(fileSize)
-
-      #Skip file if greater than 5MB
-      #JUST FOR DEBUG
-      if fileSize > 500000:
-        print "---------------------------SKIPPING FILE: GREATER THAN  5MB--------------------------"
-        time.sleep(5)
+      if (checkFileSize(username, password, entry, currentDirName, course_Name, maxFileSize) == False):
         continue
+
+
 
 
 
@@ -64,6 +82,6 @@ def download(files, authData, currentDirName, course_Name):
       #  -nc => skip downloads that would download to existing files.
       #  --user => Username
       #  --password => Password
-      os.system("wget.exe --content-disposition -nc --user " + username + " --password " + password + " https://lms9.rpi.edu:8443" +
+      os.system("wget.exe --content-disposition -nc --max-redirect 2 --user " + username + " --password " + password + " https://lms9.rpi.edu:8443" +
         entry["File"]["URL"] + " -P " + "\"" + "Files" + "\\" + course_Name + "\\" + currentDirName)
 

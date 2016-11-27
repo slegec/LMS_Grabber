@@ -18,7 +18,9 @@ from selenium.webdriver.common.keys import Keys
 # -Not grabbing embeded mp4 videos
 # -Need to download inner folders (Recursion)
 # -Embeded HTML file (Circuits example)
-#
+# -Fix Redirect error (I think it can be fixed by this --max-redirect 0)
+
+maxFileSize = 500000
 
 
 
@@ -28,6 +30,8 @@ from selenium.webdriver.common.keys import Keys
 def htmlRepair(myStr):
   #Fixes '&'
   myStr = myStr.replace("&amp;", "&")
+  myStr = myStr.replace("https://lms9.rpi.edu:8443", "")
+
   #myStr = myStr.replace("@target=blank;", "")
   return myStr
 
@@ -330,6 +334,12 @@ def main():
         downloadFiles.download(filesToDownload, authData, currentDir)
 
       if 'File' in entry:
+
+        #Check file size before download
+        if (downloadFiles.checkFileSize(authData[0], authData[1], entry, "", course_Name, maxFileSize) == False):
+          continue
+
+
         #wget Commands Used
         #  --content-disposition => names the file with the name specified in the response header without any redirecting required
         #  -nc => skip downloads that would download to existing files.
@@ -381,6 +391,12 @@ def main():
           downloadFiles.download(filesToDownload, authData, currentDir, course_Name)
 
         if 'File' in entry:
+
+          #Check file size before download
+          if (downloadFiles.checkFileSize(authData[0], authData[1], entry, "", course_Name, maxFileSize) == False):
+            continue
+
+
           #wget Commands Used
           #  --content-disposition => names the file with the name specified in the response header without any redirecting required
           #  -nc => skip downloads that would download to existing files.
