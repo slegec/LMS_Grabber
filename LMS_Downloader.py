@@ -20,6 +20,18 @@ from selenium.webdriver.common.keys import Keys
 # -Embeded HTML file (Circuits example)
 # -Fix Redirect error (I think it can be fixed by this --max-redirect 0)
 # -Error with broken links
+#
+# TODO
+# Search more than one directory down from the courses root page
+# Option to limit file types/size before download
+# Downloading large video files or executables takes time and storage space
+# Support more types of files and formats of objects on an LMS page
+#   Embedded HTML files, embedded pdfs, etc.
+# Give the user more control over the process
+#   Maybe a GUI, but at least more command line options
+# Support file download errors and re-download if failure, or skip for dead link
+# DONE - Prevent downloading of files if they are already on the users local machine
+#
 
 maxFileSize = 500000
 
@@ -247,6 +259,51 @@ def findFilesAndDirs(src):
   return listOfFilesAndDirs
 
 
+#Function cycles through all of the courses that can be downloaded
+#  The user can select which courses they want, as well as choose All
+def selectCourses(courseList):
+
+  #Prompt user wiht instructions
+  print
+  print "-----------------------------------------------------------------------"
+  print "Select all courses that you want to download. (Ex. 1,3,4) or All"
+  print "-----------------------------------------------------------------------"
+
+  #Cycle through all courses
+  for i, course in enumerate(courseList):
+    print str(i) + ". " + course['name']
+
+  print "All."
+
+  #User chooses courses
+  userCourses = raw_input("Select Courses: ")
+
+  userCourses = userCourses.split(",")
+
+  #If the user wants to download all courses, return the original list
+  for i in range(0,len(userCourses)):
+    if "ALL" in userCourses[i].upper():
+      return courseList
+
+
+  finalUserCourseList = []
+
+  #Validate the values entered by the user
+  for i in range(0, len(userCourses)):
+    try:
+      print "OK - " + str(courseList[int(userCourses[i])])
+
+      #Add the course to the final list
+      finalUserCourseList.append(courseList[int(userCourses[i])])
+
+    except:
+      print "INVALID COURSE - " + userCourses[i]
+
+    time.sleep(1)
+
+
+  return finalUserCourseList
+
 
 def main():
 
@@ -298,6 +355,8 @@ def main():
   #print courseInfo_src
 
   courseInfoList = getCourseInfo(courseInfo_src)
+
+  courseInfoList = selectCourses(courseInfoList)
 
   DEBUG_FLAG = True#False
 
