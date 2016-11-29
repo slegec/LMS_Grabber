@@ -9,20 +9,22 @@ from subprocess import Popen,PIPE,STDOUT,call
 def checkFileSize(username, password, entry, currentDirName, course_Name, maxFileSize):
 
   #Check the filesize to ensure we don't download huge files
-  cmd = ("wget.exe --spider --user " + username + " --password " + password + " https://lms9.rpi.edu:8443" +
+  cmd = ("wget.exe --spider --max-redirect 2 --user " + username + " --password " + password + " https://lms9.rpi.edu:8443" +
     entry["File"]["URL"] + " -P " + "\"" + "Files" + "\\" + course_Name + "\\" + currentDirName)
 
   #Get the filesize data from stderr
   command = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
   out, err = command.communicate()
+  print "-----"
   print err
   startLengthIndex = err.find("Length:")
   endLengthIndex = err.find(" ", startLengthIndex + 8)
   fileSize = err[startLengthIndex+8:endLengthIndex]
-  print fileSize
-  fileSize = int(fileSize)
 
   print "File Size: " + str(fileSize)
+  print entry["File"]["URL"]
+  fileSize = int(fileSize)
+
 
   #Skip file if greater than 5MB
   #JUST FOR DEBUG

@@ -19,6 +19,7 @@ from selenium.webdriver.common.keys import Keys
 # -Need to download inner folders (Recursion)
 # -Embeded HTML file (Circuits example)
 # -Fix Redirect error (I think it can be fixed by this --max-redirect 0)
+# -Error with broken links
 
 maxFileSize = 500000
 
@@ -298,13 +299,16 @@ def main():
 
   courseInfoList = getCourseInfo(courseInfo_src)
 
-  DEBUG_FLAG = False
+  DEBUG_FLAG = True#False
 
   #For easy debug
   if (DEBUG_FLAG == True):
 
     #IED
-    testCourse = courseInfoList[2]['bbid']
+    #testCourse = courseInfoList[2]['bbid']
+
+    #Circuits
+    testCourse = courseInfoList[4]['bbid']
 
 
     browser.get(preURL + "/webapps/blackboard/content/listContent.jsp?course_id=" + testCourse)
@@ -321,6 +325,14 @@ def main():
 
     for entry in listOfFilesAndDirs:
 
+
+      #course_ID = entry['bbid']
+      #course_Name = entry['Name']
+
+      course_Name = courseInfoList[4]['name']
+
+
+
       if 'Dir' in entry:
         URLpath = (entry['Dir']['URL'])
         print URLpath
@@ -331,12 +343,25 @@ def main():
 
         filesToDownload = findFilesAndDirs(coursePage)
 
-        downloadFiles.download(filesToDownload, authData, currentDir)
+        #Try to read file (check size)
+        #  If there is a failure, i.e. broken link or something else wrong
+        #  continue without error
+        try:
+          downloadFiles.download(filesToDownload, authData, currentDir, course_Name)
+        except:
+          continue
 
       if 'File' in entry:
 
-        #Check file size before download
-        if (downloadFiles.checkFileSize(authData[0], authData[1], entry, "", course_Name, maxFileSize) == False):
+        #Try to read file (check size)
+        #  If there is a failure, i.e. broken link or something else wrong
+        #  continue without error
+        try:
+
+          #Check file size before download
+          if (downloadFiles.checkFileSize(authData[0], authData[1], entry, "", course_Name, maxFileSize) == False):
+            continue
+        except:
           continue
 
 
@@ -388,12 +413,23 @@ def main():
 
           filesToDownload = findFilesAndDirs(coursePage)
 
-          downloadFiles.download(filesToDownload, authData, currentDir, course_Name)
+          #Try to read file (check size)
+          #  If there is a failure, i.e. broken link or something else wrong
+          #  continue without error
+          try:
+            downloadFiles.download(filesToDownload, authData, currentDir, course_Name)
+          except:
+            continue
 
         if 'File' in entry:
 
-          #Check file size before download
-          if (downloadFiles.checkFileSize(authData[0], authData[1], entry, "", course_Name, maxFileSize) == False):
+          try:
+
+            #Check file size before download
+            if (downloadFiles.checkFileSize(authData[0], authData[1], entry, "", course_Name, maxFileSize) == False):
+              continue
+
+          except:
             continue
 
 
