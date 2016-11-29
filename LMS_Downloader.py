@@ -20,6 +20,7 @@ from selenium.webdriver.common.keys import Keys
 # -Embeded HTML file (Circuits example)
 # -Fix Redirect error (I think it can be fixed by this --max-redirect 0)
 # -Error with broken links
+# -If the user does not select any courses, IDK what will happen?????
 #
 # TODO
 # Search more than one directory down from the courses root page
@@ -33,7 +34,8 @@ from selenium.webdriver.common.keys import Keys
 # DONE - Prevent downloading of files if they are already on the users local machine
 #
 
-maxFileSize = 500000
+#maxFileSize = 500000
+maxFileSize = -10
 
 
 
@@ -305,6 +307,46 @@ def selectCourses(courseList):
   return finalUserCourseList
 
 
+#Prompt user with option to limit by file size
+def chooseMaxFileSize():
+
+  print
+  print "-----------------------------------------------------------------------"
+  print "Enter a max file size value to be downloaded. To download all files"
+  print " regardless of size, enter '-1'.  All sizes are in MB"
+  print "-----------------------------------------------------------------------"
+
+  validSize = False
+  fileSize = -10
+
+  while (validSize == False):
+    size_str = raw_input("Enter max file size (in MB): ")
+
+    #Unlimited file size
+    if size_str == "-1":
+      validSize = True
+      fileSize = -1
+
+    try:
+      file_Size = float(size_str)*(1024*1024)
+
+      #Check for negative size
+      if (int(size_str) < -1):
+        validSize = False
+        print "INVALID SIZE - Must be a positive number"
+        continue
+
+      print "OK - Max = " + str(size_str) + "MB"
+      validSize = True
+    except:
+      print "INVALID SIZE - Please enter a valid number"
+      validSize = False
+
+
+
+  return int(fileSize )
+
+
 def main():
 
   preURL = "https://lms9.rpi.edu:8443"
@@ -356,9 +398,14 @@ def main():
 
   courseInfoList = getCourseInfo(courseInfo_src)
 
+  #User chooses which courses tey want to parse
   courseInfoList = selectCourses(courseInfoList)
 
-  DEBUG_FLAG = True#False
+  #User chooses max file size
+  maxFileSize = chooseMaxFileSize()
+
+  #DEBUG_FLAG = True
+  DEBUG_FLAG = False
 
   #For easy debug
   if (DEBUG_FLAG == True):
@@ -378,7 +425,7 @@ def main():
 
 
     listOfFilesAndDirs = findFilesAndDirs(coursePage)
-    print listOfFilesAndDirs
+    #print listOfFilesAndDirs
     print "---------Done Parsing Main Page -> On to links---------------"
 
 
@@ -394,7 +441,7 @@ def main():
 
       if 'Dir' in entry:
         URLpath = (entry['Dir']['URL'])
-        print URLpath
+        #print URLpath
         currentDir = entry['Dir']['Name']
         browser.get(preURL + URLpath)
         coursePage = browser.page_source.encode('ascii', 'ignore')
@@ -456,7 +503,7 @@ def main():
 
 
       listOfFilesAndDirs = findFilesAndDirs(coursePage)
-      print listOfFilesAndDirs
+      #print listOfFilesAndDirs
       print "---------Done Parsing Main Page -> On to links---------------"
 
 
@@ -464,7 +511,7 @@ def main():
 
         if 'Dir' in entry:
           URLpath = (entry['Dir']['URL'])
-          print URLpath
+          #print URLpath
           currentDir = entry['Dir']['Name']
           browser.get(preURL + URLpath)
           coursePage = browser.page_source.encode('ascii', 'ignore')

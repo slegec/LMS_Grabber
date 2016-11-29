@@ -12,24 +12,39 @@ def checkFileSize(username, password, entry, currentDirName, course_Name, maxFil
   cmd = ("wget.exe --spider --max-redirect 2 --user " + username + " --password " + password + " https://lms9.rpi.edu:8443" +
     entry["File"]["URL"] + " -P " + "\"" + "Files" + "\\" + course_Name + "\\" + currentDirName)
 
+
+  #Return true because there is no limit on filesize
+  if maxFileSize == -1:
+    return True
+
+
+
   #Get the filesize data from stderr
   command = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
   out, err = command.communicate()
-  print "-----"
-  print err
+  #print "-----"
+  #print err
   startLengthIndex = err.find("Length:")
   endLengthIndex = err.find(" ", startLengthIndex + 8)
   fileSize = err[startLengthIndex+8:endLengthIndex]
 
-  print "File Size: " + str(fileSize)
-  print entry["File"]["URL"]
   fileSize = int(fileSize)
+
+  #Do conversion on file size just for user ease
+  prettyPrintSize = ""
+  if fileSize >= 1000000:
+    prettyPrintSize = str(fileSize/(1024*1024)) + "MB"
+  elif fileSize < 1000000:
+    prettyPrintSize = str(fileSize/1024) + "KB"
+
 
 
   #Skip file if greater than 5MB
   #JUST FOR DEBUG
   if fileSize > maxFileSize:
-    print "---------------------------SKIPPING FILE: GREATER THAN  5MB--------------------------"
+    print "---------------------------SKIPPING FILE: GREATER THAN " + prettyPrintSize + " --------------------------"
+    print "File Size: " + str(fileSize)
+    print entry["File"]["URL"]
     time.sleep(5)
     return False
     #continue
