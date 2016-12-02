@@ -347,6 +347,53 @@ def chooseMaxFileSize():
   return int(fileSize )
 
 
+#Prompt user with option to choose download dir
+def chooseDownloadDir():
+
+  print
+  print "-----------------------------------------------------------------------"
+  print "Choose the file location for the download files to be saved:"
+  print " Ex: C:/LMS/"
+  print "-----------------------------------------------------------------------"
+
+  validPath = False
+  dirPath = ""
+
+  while (validPath == False):
+
+    path_str = raw_input("Enter the directory path: ")
+
+    #Check if dir exists
+    if (os.path.isdir(path_str)):
+      validPath = True
+      dirPath = path_str
+      print "OK - Files will be stored to \'" + path_str + "\'!"
+      continue
+    #Otherwise, try to create the dir the user specified
+    else:
+      createDir = raw_input("This directory does not exist...would you like to create " + path_str + "? (Y/N):" )
+
+      #If the user wants to create the dir they specified
+      if createDir.upper() == "Y":
+        #Try to create the new dir
+        try:
+          os.makedirs(path_str)
+          dirPath = path_str
+          validPath = True
+          print "OK - \'" + path_str + "\' created successfully!"
+        except:
+          print "ERROR - \'" + path_str + "\' could not be created!"
+          continue
+
+    time.sleep(2)
+    print
+
+
+
+  return dirPath
+
+
+
 def main():
 
   preURL = "https://lms9.rpi.edu:8443"
@@ -403,6 +450,10 @@ def main():
 
   #User chooses max file size
   maxFileSize = chooseMaxFileSize()
+
+  #Choose download dir
+  downloadDir = chooseDownloadDir()
+  time.sleep(10)
 
   #DEBUG_FLAG = True
   DEBUG_FLAG = False
