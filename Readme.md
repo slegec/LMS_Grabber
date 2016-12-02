@@ -28,6 +28,9 @@ in order to parse through the LMS webpages.
 
 ###How to use
 
+
+Edit the 'PW.txt' file to include your LMS Username and Password, for easy login
+
 Run the program in a CMD window.
 
 The user should be prompted to enter the following information:
