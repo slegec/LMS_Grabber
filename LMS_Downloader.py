@@ -508,7 +508,7 @@ def main():
         #  If there is a failure, i.e. broken link or something else wrong
         #  continue without error
         try:
-          downloadFiles.download(filesToDownload, authData, currentDir, course_Name)
+          downloadFiles.download(filesToDownload, authData, currentDir, course_Name, downloadDir)
         except:
           continue
 
@@ -578,7 +578,7 @@ def main():
           #  If there is a failure, i.e. broken link or something else wrong
           #  continue without error
           try:
-            downloadFiles.download(filesToDownload, authData, currentDir, course_Name)
+            downloadFiles.download(filesToDownload, authData, currentDir, course_Name, downloadDir)
           except:
             continue
 
