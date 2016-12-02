@@ -26,14 +26,18 @@ in order to parse through the LMS webpages.
 * wget
 
 
+###How to use
+
 Run the program in a CMD window.
 
 The user should be prompted to enter the following information:
 
-*LMS Username and password
+* LMS Username and password
 
-*Select which courses to downloaded
+* Select which courses to downloaded
 
-*Max file size allowed
+* Max file size allowed
 
-*File download location
+* File download location
+
+The program should then run without error until it downloads all files
