@@ -18,18 +18,19 @@ in order to parse through the LMS webpages.
 
 ###Required Python Libraries
 
-*selenium
+-selenium
 
 
 ###Other required tools
 
-*wget
+-wget
 
 
 Run the program in a CMD window.
 
 The user should be prompted to enter the following information:
-*LMS Username and password
-*Select which courses to downloaded
-*Max file size allowed
-*File download location
+
+-LMS Username and password
+-Select which courses to downloaded
+-Max file size allowed
+-File download location

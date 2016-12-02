@@ -328,7 +328,7 @@ def chooseMaxFileSize():
       fileSize = -1
 
     try:
-      file_Size = float(size_str)*(1024*1024)
+      fileSize = float(size_str)*(1024*1024)
 
       #Check for negative size
       if (int(size_str) < -1):
@@ -388,6 +388,10 @@ def chooseDownloadDir():
     time.sleep(2)
     print
 
+    #Format downloadDir so it is a consitent output
+    if dirPath[-1] == "\\" or dirPath[-1] == "/":
+      dirPath = dirPath[:-1]
+
 
 
   return dirPath
@@ -415,14 +419,17 @@ def main():
   #Load a PW file if present
   try:
     authData = []
-    with open('../../PW.txt') as f:
+    with open('PW.txt') as f:
       authData = f.read().splitlines()
     inputUsername = authData[0]
     inputPassword = authData[1]
-
+    if inputUsername == "username" and inputPassword == "password":
+      raise ValueError('Throw an exception just so we can get to our exception code.')
   except:
+    print "Enter your LMS username and password:"
     inputUsername = raw_input("Username: ")
     inputPassword = getpass.getpass("Password: ")
+
 
   #Send the username and passwords as keypresses
   #Simulate typing
@@ -439,8 +446,6 @@ def main():
 
   browser.get(preURL + "/webapps/Bb-mobile-BBLEARN/enrollments?course_type=COURSE")
   courseInfo_src = browser.page_source.encode('ascii', 'ignore')
-  #soup = BeautifulSoup(source, "html.parser")
-  #print soup
   #print courseInfo_src
 
   courseInfoList = getCourseInfo(courseInfo_src)
@@ -453,7 +458,6 @@ def main():
 
   #Choose download dir
   downloadDir = chooseDownloadDir()
-  time.sleep(10)
 
   #DEBUG_FLAG = True
   DEBUG_FLAG = False
@@ -529,7 +533,7 @@ def main():
         #  --password => Password
 
         os.system("wget.exe --content-disposition -nc --user " + authData[0] + " --password " + authData[1] + " https://lms9.rpi.edu:8443" +
-          entry['File']['URL'] + " -P " + "\"" + "Files" + "\"")
+          entry['File']['URL'] + " -P " + "\"" + downloadDir + "\"")
 
 
   #This will be produciton code
@@ -596,7 +600,7 @@ def main():
           #  --user => Username
           #  --password => Password
           os.system("wget.exe --content-disposition -nc --user " + authData[0] + " --password " + authData[1] + " https://lms9.rpi.edu:8443" +
-            entry['File']['URL'] + " -P " + "\"" + "Files\\" + course_Name + "\"")
+            entry['File']['URL'] + " -P " + "\"" + downloadDir + "\\" + course_Name + "\"")
 
 
   #browser.service.process.send_signal(signal.SIGTERM) # kill the specific phantomjs child proc

@@ -52,7 +52,7 @@ def checkFileSize(username, password, entry, currentDirName, course_Name, maxFil
   return True
 
 
-def download(files, authData, currentDirName, course_Name):
+def download(files, authData, currentDirName, course_Name, downloadDir):
   print files
 
   #Store the parameters to variables
@@ -60,7 +60,8 @@ def download(files, authData, currentDirName, course_Name):
   password = authData[1]
 
   try:
-    os.mkdir("Files\\" + course_Name + "\\" + currentDirName)
+    print(downloadDir + "\\" + course_Name + "\\" + currentDirName)
+    os.mkdir(downloadDir + "\\" + course_Name + "\\" + currentDirName)
   except:
     pass
 
@@ -87,18 +88,11 @@ def download(files, authData, currentDirName, course_Name):
         continue
 
 
-
-
-
-
-
-
-
       #wget Commands Used
       #  --content-disposition => names the file with the name specified in the response header without any redirecting required
       #  -nc => skip downloads that would download to existing files.
       #  --user => Username
       #  --password => Password
       os.system("wget.exe --content-disposition -nc --max-redirect 2 --user " + username + " --password " + password + " https://lms9.rpi.edu:8443" +
-        entry["File"]["URL"] + " -P " + "\"" + "Files" + "\\" + course_Name + "\\" + currentDirName)
+        entry["File"]["URL"] + " -P " + "\"" + downloadDir + "\\" + course_Name + "\\" + currentDirName)
 
