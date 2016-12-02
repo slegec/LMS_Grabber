@@ -19,6 +19,7 @@ def checkFileSize(username, password, entry, currentDirName, course_Name, maxFil
 
 
 
+
   #Get the filesize data from stderr
   command = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
   out, err = command.communicate()

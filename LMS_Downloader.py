@@ -330,6 +330,7 @@ def chooseMaxFileSize():
     try:
       fileSize = float(size_str)*(1024*1024)
 
+
       #Check for negative size
       if (int(size_str) < -1):
         validSize = False
