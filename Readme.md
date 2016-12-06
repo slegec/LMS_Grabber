@@ -25,6 +25,8 @@ in order to parse through the LMS webpages.
 
 * wget
 
+* Firefox web browser (Can be ported for other browsers)
+
 
 ###How to use
 

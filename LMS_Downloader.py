@@ -24,8 +24,8 @@ from selenium.webdriver.common.keys import Keys
 #
 # TODO
 # Search more than one directory down from the courses root page
-# Option to limit file types/size before download
-# Downloading large video files or executables takes time and storage space
+# DONE - Option to limit file types/size before download
+#   Downloading large video files or executables takes time and storage space
 # Support more types of files and formats of objects on an LMS page
 #   Embedded HTML files, embedded pdfs, etc.
 # Give the user more control over the process
@@ -330,7 +330,6 @@ def chooseMaxFileSize():
     try:
       fileSize = float(size_str)*(1024*1024)
 
-
       #Check for negative size
       if (int(size_str) < -1):
         validSize = False
@@ -389,9 +388,9 @@ def chooseDownloadDir():
     time.sleep(2)
     print
 
-    #Format downloadDir so it is a consitent output
-    if dirPath[-1] == "\\" or dirPath[-1] == "/":
-      dirPath = dirPath[:-1]
+  #Format downloadDir so it is a consitent output
+  if dirPath[-1] == "\\" or dirPath[-1] == "/":
+    dirPath = dirPath[:-1]
 
 
 
@@ -430,6 +429,8 @@ def main():
     print "Enter your LMS username and password:"
     inputUsername = raw_input("Username: ")
     inputPassword = getpass.getpass("Password: ")
+    authData[0] = inputUsername
+    authData[1] = inputPassword
 
 
   #Send the username and passwords as keypresses
