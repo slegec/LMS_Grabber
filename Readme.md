@@ -28,6 +28,15 @@ in order to parse through the LMS webpages.
 * Firefox web browser (Can be ported for other browsers)
 
 
+
+###Other notes
+
+* Only been tested on Windows 7 64bit
+
+* At the time of writing this, Selenium has been problematic on verisons greater that 47.x.x
+
+
+
 ###How to use
 
 
