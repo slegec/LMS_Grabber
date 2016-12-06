@@ -55,3 +55,9 @@ The user should be prompted to enter the following information:
 * File download location
 
 The program should then run without error until it downloads all files
+
+
+###Issues
+
+* The program only goes one directory deep in an LMS course.  Potentially this could be problematic
+    depending on how the course is set up.
