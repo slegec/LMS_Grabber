@@ -61,3 +61,18 @@ The program should then run without error until it downloads all files
 
 * The program only goes one directory deep in an LMS course.  Potentially this could be problematic
     depending on how the course is set up.
+
+
+###Style Guide
+
+I didn't really follow a specific style of coding so to speak.  I really just used my own.  In essence
+it is this:
+
+* Variable start with lowercase
+* Mostly camel case
+* 2 space indents
+* Max line length of around 100 characters
+* Line breaks after binary operator
+* Blank lines between most lines of code
+* Comments above the line
+
